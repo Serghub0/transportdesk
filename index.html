@@ -498,8 +498,14 @@
       </div>
       <div class="selector-group">
         <label>Target Distance</label>
-        <select id="sel-dist">
-          <option value="">— Select Distance —</option>
+        <!-- Always-visible custom km input -->
+        <input type="text" id="custom-dist-km" placeholder="Type any distance in km  e.g. 4.110"
+          style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:13px;border-radius:4px;outline:none;margin-bottom:6px;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--yellow)';document.getElementById('sel-dist').value='';"
+          onblur="this.style.borderColor='var(--border)'">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:6px;padding-left:2px;">↑ Type custom km above — or pick preset below</div>
+        <select id="sel-dist" onchange="handleDistSelect(this)">
+          <option value="">— Select preset distance —</option>
           <optgroup label="── Meters ──">
             <option value="0.05km">50 m &nbsp;(0.05 km)</option>
             <option value="0.1km">100 m &nbsp;(0.10 km)</option>
@@ -1774,6 +1780,191 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+
+  <!-- 7. OTDR TESTER — EXPANDED -->
+  <div class="im-section">
+    <button class="im-trigger" onclick="imToggle('im7')">
+      <div class="im-sec-icon im-ic-teal">📡</div>
+      <div style="flex:1"><div class="im-sec-title">OTDR Tester — Field Workflow & OSP Integration</div><div class="im-sec-sub">How to read OTDR printouts from OSP · acceptance testing · what to do when a fiber fails</div></div>
+      <span class="im-chevron" id="imc-im7">▼</span>
+    </button>
+    <div class="im-body" id="imb-im7">
+      <div class="im-divider"></div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-teal">1</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">What numbers to pull from an OSP OTDR printout</div>
+          <div class="im-step-desc">When you receive an OTDR report from your OSP (outside plant) contractor, look for two numbers per fiber in the summary section — not the event table. You want the <b>total end-to-end loss in dB</b> and the <b>total fiber length in kft or km</b>. These are typically on the first or last page of the report labeled "Total Loss" and "Fiber Length" or "Cable Length."</div>
+          <div class="im-example green">
+            <div class="em-label">Real example — from a Viavi/EXFO printout</div>
+            <b>Fiber 001:</b> Length = 13.486 kft &nbsp;·&nbsp; Total Loss = 1.575 dB<br>
+            <b>Fiber 002:</b> Length = 13.486 kft &nbsp;·&nbsp; Total Loss = 1.798 dB<br>
+            Enter exactly those numbers into the OTDR Tester. The tool calculates avg loss/kft and tells you if each fiber meets acceptance.
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-teal">2</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">One-way vs. bi-directional OTDR testing</div>
+          <div class="im-step-desc">A one-way OTDR test measures from one end only. A bi-directional test averages the results from both ends — this is the OSP industry standard for final acceptance because it eliminates directional anomalies like splice asymmetry. If your OSP provides bi-directional results, use the averaged total loss value in the OTDR Tester.</div>
+          <div class="im-example green">
+            <div class="em-label">Which to use</div>
+            <b>Acceptance testing:</b> Use bi-directional averaged result if available.<br>
+            <b>Troubleshooting:</b> Use one-way — it shows where along the fiber the problem is.
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-teal">3</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">Fusion vs. Mechanical splices — the loss difference matters</div>
+          <div class="im-step-desc">This is one of the most important things to verify with your OSP contractor before accepting a fiber plant.</div>
+          <div class="im-example green">
+            <div class="em-label">Splice type comparison</div>
+            <b style="color:var(--green)">Fusion splice:</b> 0.01–0.05 dB each · Industry standard for all permanent OSP dark fiber · The splicer melts the two fiber ends together — nearly lossless · <b>This is what HWC should require on all permanent installs</b><br><br>
+            <b style="color:var(--orange)">Mechanical splice:</b> 0.70–1.50 dB each · 15× more loss than fusion · Used for emergency field restoration only when a fusion splicer is not available · <b>Never acceptable on a permanent fiber plant</b><br><br>
+            <b>Impact example:</b> A span with 8 splices:<br>
+            · Fusion: 8 × 0.05 = <span style="color:var(--green)">0.40 dB</span> total splice loss<br>
+            · Mechanical: 8 × 1.00 = <span style="color:var(--red)">8.00 dB</span> total splice loss — could fail the entire link budget
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-teal">4</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">Safety margin — overall, not per splice</div>
+          <div class="im-step-desc">The 3 dB safety margin in the Link Analyzer is applied <b>once to the entire link</b> — not per splice. It covers aging of connectors and splices over time, temperature variation, future repair splices, and test equipment tolerance. The splice loss per-unit is already calculated separately based on your splice count and type.</div>
+          <div class="im-example green">
+            <div class="em-label">How the budget breaks down</div>
+            Fiber loss: 3.50 dB &nbsp;+&nbsp; Connectors (4 × 0.25): 1.00 dB &nbsp;+&nbsp; Splices (4 × 0.05): 0.20 dB &nbsp;+&nbsp; <b>Overall margin: 3.00 dB</b> = <b>7.70 dB total required</b><br>
+            Transceiver budget (10G LR): 12 dB → <span style="color:var(--green)">PASS with 4.30 dB headroom</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-teal">5</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">What to do when a fiber fails acceptance</div>
+          <div class="im-step-desc">If a fiber shows "Needs review" (loss/kft &gt; 0.13 dB/kft), escalate in this order:</div>
+          <div class="im-example green">
+            <div class="em-label">Investigation steps</div>
+            <b>Step 1:</b> Re-run the OTDR from both ends — confirm the loss is real, not a test setup error.<br>
+            <b>Step 2:</b> Look at the OTDR event table — find which event (splice, connector, bend) is causing the excess loss.<br>
+            <b>Step 3:</b> If a splice — request the OSP contractor re-splice that specific location.<br>
+            <b>Step 4:</b> If a connector — clean and re-test. A dirty connector can add 0.5–2 dB alone.<br>
+            <b>Step 5:</b> If the loss is distributed evenly — may indicate a microbend issue from improper installation. Requires route investigation.
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-teal">6</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">Verifying span distance matches your work order</div>
+          <div class="im-step-desc">The fiber length on the OTDR should be within 2–3% of the route distance on your work order. A big discrepancy means either the route took a longer path than planned (common in conduit systems with curves) or the OTDR refractive index setting is wrong. Use the Miles ↔ KM converter in the OTDR tab to verify your work order distance against the OTDR reading.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. DIAGRAM TOOL — FULL WORKFLOW -->
+  <div class="im-section">
+    <button class="im-trigger" onclick="imToggle('im8')">
+      <div class="im-sec-icon" style="background:rgba(255,214,0,0.12);border:1px solid rgba(255,214,0,0.3);">✏️</div>
+      <div style="flex:1"><div class="im-sec-title">Diagram Tool — Full Design Workflow</div><div class="im-sec-sub">Design → GPS → KMZ export → Google Earth · before/after · TX/RX · background trace</div></div>
+      <span class="im-chevron" id="imc-im8">▼</span>
+    </button>
+    <div class="im-body" id="imb-im8">
+      <div class="im-divider"></div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-amber">1</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">Full design to Google Earth workflow</div>
+          <div class="im-step-desc">The diagram tool connects your network design directly to real-world geography via KMZ export.</div>
+          <div class="im-example amber">
+            <div class="em-label">Step by step</div>
+            <b>1.</b> Place your shapes (Cabinet, POP, Handhole, Router/SW, etc.) on the canvas<br>
+            <b>2.</b> Connect them with Fiber or TX/RX lines — add labels (distance, circuit ID)<br>
+            <b>3.</b> Select each shape → enter GPS Latitude and Longitude in the Properties panel<br>
+            <b>4.</b> Shapes with GPS show a 📍 badge<br>
+            <b>5.</b> Click <b>🌍 KMZ Export</b> — opens in Google Earth as real placemarks on the map<br>
+            <b>6.</b> Fiber lines between GPS-tagged shapes appear as routes on Google Earth
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-amber">2</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">Before/After comparison — copy and paste workflow</div>
+          <div class="im-step-desc">Use this to show a circuit change, a reroute, or a network upgrade side by side on the same canvas.</div>
+          <div class="im-example amber">
+            <div class="em-label">How to create a before/after</div>
+            <b>1.</b> Design your current network (the "before")<br>
+            <b>2.</b> Switch to <b>Select</b> tool → drag a selection box around the entire design<br>
+            <b>3.</b> Press <b>Ctrl+C</b> to copy the whole group<br>
+            <b>4.</b> Press <b>Ctrl+V</b> to paste — a duplicate appears below automatically<br>
+            <b>5.</b> Modify the pasted copy to show the "after" state<br>
+            <b>6.</b> Add a Text Box label above each: "BEFORE" and "AFTER"<br>
+            <b>7.</b> Export PNG (4× HD) to share or print
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-amber">3</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">TX/RX pair — what it represents physically</div>
+          <div class="im-step-desc">In fiber optics, every circuit uses two fibers — one for transmit (TX) and one for receive (RX). Together they form a full-duplex pair. The TX/RX tool in the diagram represents this exactly: two fibers sharing the same endpoints, running in opposite directions.</div>
+          <div class="im-example amber">
+            <div class="em-label">Physical meaning</div>
+            <b>TX fiber:</b> Carries signal from Site A transmitter to Site B receiver → arrow points A→B<br>
+            <b>RX fiber:</b> Carries signal from Site B transmitter back to Site A receiver → arrow points B→A<br>
+            <b>Traffic animation:</b> Hit ▶ Traffic to see both fibers animating in opposite directions simultaneously — this is what actual full-duplex traffic looks like
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-amber">4</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">Background image import — trace over an existing map</div>
+          <div class="im-step-desc">If you have an existing network diagram, route map, or even a Google Maps screenshot, you can import it as a faint background layer and trace over it with your shapes and lines.</div>
+          <div class="im-example amber">
+            <div class="em-label">Workflow</div>
+            <b>1.</b> Click <b>🖼 BG Image</b> in the toolbar → select your PNG or JPG<br>
+            <b>2.</b> The image appears at 25% opacity behind the canvas grid<br>
+            <b>3.</b> Place shapes over the locations on the background image<br>
+            <b>4.</b> Draw fiber lines following the routes shown in the image<br>
+            <b>5.</b> Toggle BG: ON/OFF to check your work against the original<br>
+            <b>6.</b> Click ✕ BG when done — the background does not appear in exports
+          </div>
+        </div>
+      </div>
+
+      <div class="im-step">
+        <div class="im-step-num isn-amber">5</div>
+        <div class="im-step-inner">
+          <div class="im-step-label">Saving and loading diagrams for different projects</div>
+          <div class="im-step-desc">Each fiber route, circuit, or customer can have its own saved diagram file. The save format is a small JSON file that stores everything — shapes, fiber lines, labels, colors, GPS coordinates, and project notes.</div>
+          <div class="im-example amber">
+            <div class="em-label">File management tip</div>
+            Name your files descriptively: <b>cypress-to-tampa-route.json</b>, <b>circuit-HWC-4821-before.json</b>, <b>orlando-backbone-v2.json</b><br><br>
+            Load any saved file anytime — the diagram restores exactly as you left it including all notes, GPS data, and fiber connections.
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -3354,7 +3545,13 @@ function fiberLoss1550(fiber) {
 
 function calculate() {
   const speed  = document.getElementById("sel-speed").value;
-  const distV  = document.getElementById("sel-dist").value;
+  // Custom text input takes priority; dropdown used if custom is empty
+  const customRaw = document.getElementById('custom-dist-km').value.trim();
+  const customKm  = parseFloat(customRaw);
+  const selDist   = document.getElementById('sel-dist').value;
+  const distV     = (!isNaN(customKm) && customKm > 0)
+                      ? customKm + 'km'
+                      : selDist;
   const fiber  = document.getElementById("sel-fiber").value;
   const nConn  = parseFloat(document.getElementById("inp-conn").value)||0;
   const nSplice= parseFloat(document.getElementById("inp-splice").value)||0;
