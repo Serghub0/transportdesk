@@ -330,119 +330,6 @@
 </style>
 </head>
 <body>
-<!-- ============================================================
-     HOTWIRE TRANSPORTDESK — ACCESS CONTROL
-     To change the password: find the line below that says
-     CHANGE PASSWORD HERE and update the value in quotes.
-     ============================================================ -->
-<script>
-(function(){
-  // ── CHANGE PASSWORD HERE ──────────────────────────────────────
-  var _htPass = "Hotwire2026!";
-  // ── DO NOT EDIT BELOW THIS LINE ───────────────────────────────
-  var _htContact = { email:"Serginio08@gmail.com", tel:"561-305-7697" };
-  var _htSessionDays = 7;
-  var _htKey = "ht_access_v1";
-
-  function _htHash(s){
-    // Simple deterministic hash — not cryptographic but obfuscates plain text
-    var h=0x811c9dc5;
-    for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*0x01000193)>>>0;}
-    return h.toString(16);
-  }
-
-  function _htCheck(){
-    try{
-      var stored=localStorage.getItem(_htKey);
-      if(stored){
-        var obj=JSON.parse(stored);
-        if(obj.hash===_htHash(_htPass)&&obj.exp>Date.now()) return true;
-      }
-    }catch(e){}
-    return false;
-  }
-
-  function _htGrant(){
-    var exp=Date.now()+(_htSessionDays*24*60*60*1000);
-    localStorage.setItem(_htKey,JSON.stringify({hash:_htHash(_htPass),exp:exp}));
-  }
-
-  function _htShowGate(err){
-    document.body.style.display="none";
-    var gate=document.createElement("div");
-    gate.id="ht-gate";
-    gate.style.cssText="position:fixed;inset:0;z-index:99999;background:#040d18;display:flex;align-items:center;justify-content:center;font-family:'Exo 2',sans-serif;";
-    gate.innerHTML=`
-      <div style="width:min(420px,92vw);background:#071628;border:1px solid #1a3a5c;border-radius:10px;overflow:hidden;box-shadow:0 0 40px rgba(0,212,255,0.15);">
-        <!-- Header -->
-        <div style="background:linear-gradient(135deg,#040d18,#0a1f38);padding:28px 28px 20px;border-bottom:1px solid #1a3a5c;text-align:center;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:#00d4ff;text-transform:uppercase;margin-bottom:8px;">// OPTICAL NETWORKING REFERENCE</div>
-          <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#e8f4ff;letter-spacing:2px;line-height:1.1;">HOTWIRE<br><span style="color:#00d4ff;">TRANSPORT</span>DESK</div>
-          <div style="font-size:12px;color:#5a7a99;margin-top:8px;letter-spacing:1px;">RESTRICTED ACCESS</div>
-        </div>
-        <!-- Form -->
-        <div style="padding:28px;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:#5a7a99;text-transform:uppercase;margin-bottom:8px;">Access Password</div>
-          <div style="position:relative;margin-bottom:6px;">
-            <input id="ht-pw-input" type="password" placeholder="Enter password"
-              style="width:100%;background:#0a1f38;border:1px solid #1a3a5c;color:#e8f4ff;padding:12px 46px 12px 14px;font-family:'Share Tech Mono',monospace;font-size:14px;border-radius:6px;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
-              onfocus="this.style.borderColor='#00d4ff'" onblur="this.style.borderColor='#1a3a5c'"
-              onkeydown="if(event.key==='Enter')document.getElementById('ht-submit').click()">
-            <button onclick="var i=document.getElementById('ht-pw-input');i.type=i.type==='password'?'text':'password';"
-              style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#5a7a99;cursor:pointer;font-size:16px;padding:0;">👁</button>
-          </div>
-          <div id="ht-err" style="min-height:36px;margin-bottom:12px;"></div>
-          <button id="ht-submit" onclick="window._htTry()"
-            style="width:100%;padding:13px;background:linear-gradient(135deg,#0088cc,#00d4ff);color:#040d18;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border:none;border-radius:6px;cursor:pointer;transition:opacity 0.2s;"
-            onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">ENTER</button>
-        </div>
-        <!-- Contact footer -->
-        <div style="padding:16px 28px 22px;border-top:1px solid #1a3a5c;text-align:center;">
-          <div style="font-size:11px;color:#5a7a99;margin-bottom:8px;">Don't have access? Contact the administrator:</div>
-          <a href="mailto:${_htContact.email}" style="display:inline-block;font-family:'Share Tech Mono',monospace;font-size:11px;color:#00d4ff;text-decoration:none;margin-bottom:4px;">✉ ${_htContact.email}</a><br>
-          <a href="tel:${_htContact.tel}" style="display:inline-block;font-family:'Share Tech Mono',monospace;font-size:11px;color:#00e676;text-decoration:none;margin-top:4px;">📞 ${_htContact.tel}</a>
-        </div>
-      </div>`;
-    document.body.parentNode.insertBefore(gate,document.body);
-    // Load fonts for gate
-    var lnk=document.createElement("link");
-    lnk.rel="stylesheet";lnk.href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@700&family=Exo+2:wght@400&display=swap";
-    document.head.appendChild(lnk);
-    if(err){
-      document.getElementById("ht-err").innerHTML=
-        `<div style="background:rgba(255,61,0,0.08);border:1px solid rgba(255,61,0,0.3);border-radius:4px;padding:8px 12px;font-size:12px;color:#ff6b4a;text-align:center;">
-          ❌ Incorrect password — contact <b style="color:#e8f4ff;">${_htContact.email}</b> or call <b style="color:#e8f4ff;">${_htContact.tel}</b> to request access.
-        </div>`;
-    }
-  }
-
-  window._htTry=function(){
-    var val=document.getElementById("ht-pw-input").value;
-    if(_htHash(val)===_htHash(_htPass)){
-      _htGrant();
-      document.getElementById("ht-gate").remove();
-      document.body.style.display="";
-    } else {
-      document.getElementById("ht-pw-input").value="";
-      document.getElementById("ht-err").innerHTML=
-        `<div style="background:rgba(255,61,0,0.08);border:1px solid rgba(255,61,0,0.3);border-radius:4px;padding:8px 12px;font-size:12px;color:#ff6b4a;text-align:center;">
-          ❌ Incorrect password — contact <b style="color:#e8f4ff;">${_htContact.email}</b> or call <b style="color:#e8f4ff;">${_htContact.tel}</b> to request access.
-        </div>`;
-      document.getElementById("ht-pw-input").focus();
-    }
-  };
-
-  // Check session on load
-  if(_htCheck()){
-    // Already authenticated — show app immediately
-  } else {
-    document.addEventListener("DOMContentLoaded",function(){ _htShowGate(false); });
-    // Also catch if DOM already loaded
-    if(document.readyState!=="loading") _htShowGate(false);
-  }
-})();
-</script>
-
 <div class="container">
 
 <!-- HEADER -->
@@ -1971,9 +1858,18 @@
 </div>
 </div><!-- end tab-manual -->
 
-<footer>
-  <div>FIBER OPTIC TRANSCEIVER DISTANCE &amp; LOSS REFERENCE &nbsp;·&nbsp; COMPILED JUNE 2026 &nbsp;·&nbsp; SERGINIO PICARD</div>
-  <div style="margin-top:4px">SOURCES: IEEE 802.3 &nbsp;·&nbsp; OIF 400ZR/800ZR IA &nbsp;·&nbsp; OPENZR+ MSA &nbsp;·&nbsp; TIA/EIA-568 &nbsp;·&nbsp; FOA &nbsp;·&nbsp; COHERENT CORP. &nbsp;·&nbsp; CISCO &nbsp;·&nbsp; FS.COM</div>
+<footer style="margin-top:50px;padding-top:20px;border-top:1px solid var(--border);">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;line-height:2.0;text-align:center;">
+    <div style="font-size:13px;color:var(--white);font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:2px;margin-bottom:6px;">
+      HOTWIRE <span style="color:var(--accent);">TRANSPORT</span>DESK
+    </div>
+    <div>Built &amp; Designed by <span style="color:var(--accent);">Serginio Picard</span> &nbsp;·&nbsp; Transport Engineer</div>
+    <div style="margin-top:4px;">© 2026 Serginio Picard &nbsp;·&nbsp; All Rights Reserved</div>
+    <div style="margin-top:4px;color:var(--muted);">Unauthorized reproduction, modification, or redistribution of this tool is prohibited without written permission.</div>
+    <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;font-size:9px;color:#3a5a7a;">
+      SOURCES: IEEE 802.3 &nbsp;·&nbsp; OIF 400ZR/800ZR IA &nbsp;·&nbsp; OPENZR+ MSA &nbsp;·&nbsp; TIA/EIA-568 &nbsp;·&nbsp; FOA &nbsp;·&nbsp; COHERENT CORP. &nbsp;·&nbsp; CISCO &nbsp;·&nbsp; FS.COM
+    </div>
+  </div>
 </footer>
 
 </div><!-- .container -->
